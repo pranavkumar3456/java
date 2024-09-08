@@ -14,8 +14,8 @@ on:
           - kustomize
           - all
       terraform_option:
-        description: "Terraform option (Only for Terraform action)"
-        default: "plan"
+        description: "Terraform option (only used if terraform is selected)"
+        default: ""
         required: false
         type: choice
         options:
@@ -23,8 +23,8 @@ on:
           - apply
           - destroy
       docker_image_option:
-        description: "Docker image option (Only for Docker Image action)"
-        default: "build"
+        description: "Docker image option (only used if docker-image is selected)"
+        default: ""
         required: false
         type: choice
         options:
@@ -84,7 +84,7 @@ jobs:
         run: terraform init -backend-config="resource_group_name=${{ env.RESOURCE_GROUP }}" -backend-config="storage_account_name=${{ env.STORAGE_ACCOUNT }}" -backend-config="container_name=${{env.CONTAINER_NAME}}" -backend-config="key=${{env.STATE_KEY}}" -backend-config="access_key=${{env.STORAGE_SECRET}}"
 
       - name: Terraform ${{ github.event.inputs.terraform_option }}
-        if: ${{ github.event.inputs.terraform_option }}
+        if: ${{ github.event.inputs.action == 'terraform' && github.event.inputs.terraform_option != '' }}
         run: terraform ${{ github.event.inputs.terraform_option }} --var-file=${{ github.event.inputs.environment }}.tfvars -no-color -input=false
 
   docker-image-execute:
@@ -96,12 +96,12 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build Docker Image
-        if: ${{ github.event.inputs.docker_image_option == 'build' }}
+        if: ${{ github.event.inputs.action == 'docker-image' && github.event.inputs.docker_image_option == 'build' }}
         run: |
           docker build -t my-image:latest .
       
       - name: Push Docker Image
-        if: ${{ github.event.inputs.docker_image_option == 'push' }}
+        if: ${{ github.event.inputs.action == 'docker-image' && github.event.inputs.docker_image_option == 'push' }}
         run: |
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
           docker push my-image:latest
