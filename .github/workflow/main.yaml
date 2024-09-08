@@ -3,7 +3,7 @@ name: Build and Deploy to UAT Staging AKS
 on:
   push:
     branches:
-      - rakshak-review
+      - main
   workflow_dispatch:
     inputs:
       action: # Specify what to do (build, deploy, etc.)
