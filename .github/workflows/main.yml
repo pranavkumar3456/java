@@ -1,4 +1,4 @@
-name: "Platform CD01"
+name: "Platform CD"
 
 on:
   workflow_dispatch:
