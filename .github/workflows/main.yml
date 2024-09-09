@@ -1,0 +1,132 @@
+name: "Platform CD"
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Select action"
+        default: "all"
+        required: true
+        type: choice
+        options:
+          - terraform
+          - docker-image
+          - kustomize
+          - all
+      terraform_option:
+        description: "Terraform option (only used if terraform is selected)"
+        default: ""
+        required: false
+        type: choice
+        options:
+          - plan
+          - apply
+          - destroy
+      docker_image_option:
+        description: "Docker image option (only used if docker-image is selected)"
+        default: ""
+        required: false
+        type: choice
+        options:
+          - build
+          - push
+      environment:
+        description: "Environment to deploy applications to"
+        default: "qa"
+        required: true
+        type: choice
+        options:
+          - dev
+          - qa
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  CLUSTER_NAME: "aks-lgtm-${{ github.event.inputs.environment }}"
+  RESOURCE_GROUP: "${{ vars.RESOURCE_GROUP }}"
+
+jobs:
+  terraform-execute:
+    name: "Terraform Execute"
+    if: ${{ github.event.inputs.action == 'terraform' || github.event.inputs.action == 'all' }}
+    runs-on: ubuntu-latest
+    env:
+      ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      ARM_CLIENT_ID: ${{ vars.AZURE_MI_CLIENT_ID }}
+      TF_VERSION: 1.7.4
+      RESOURCE_GROUP: ${{ vars.TF_RESOURCE_GROUP }}
+      STORAGE_ACCOUNT: ${{ vars.TF_STORAGE_ACCOUNT }}
+      STORAGE_SECRET: ${{ secrets.TF_STORAGE_SECRET }}
+      CONTAINER_NAME: ${{ vars.TF_CONTAINER_NAME }}
+      STATE_KEY: ${{ vars.TF_STATE_KEY }}
+      GITRUNNER_TOKEN: ${{ secrets.RUNNER_REGISTRATION_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+      
+      - name: 'Authenticate to Azure'
+        uses: azure/login@v1
+        with:
+          client-id: ${{ env.ARM_CLIENT_ID }}
+          tenant-id: ${{ env.ARM_TENANT_ID }}
+          subscription-id: ${{ env.ARM_SUBSCRIPTION_ID }}
+  
+      - name: Terraform init
+        id: init
+        run: terraform init -backend-config="resource_group_name=${{ env.RESOURCE_GROUP }}" -backend-config="storage_account_name=${{ env.STORAGE_ACCOUNT }}" -backend-config="container_name=${{env.CONTAINER_NAME}}" -backend-config="key=${{env.STATE_KEY}}" -backend-config="access_key=${{env.STORAGE_SECRET}}"
+
+      - name: Terraform ${{ github.event.inputs.terraform_option }}
+        if: ${{ github.event.inputs.action == 'terraform' && github.event.inputs.terraform_option != '' }}
+        run: terraform ${{ github.event.inputs.terraform_option }} --var-file=${{ github.event.inputs.environment }}.tfvars -no-color -input=false
+
+  docker-image-execute:
+    name: "Docker Image Execute"
+    if: ${{ github.event.inputs.action == 'docker-image' || github.event.inputs.action == 'all' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Docker Image
+        if: ${{ github.event.inputs.action == 'docker-image' && github.event.inputs.docker_image_option == 'build' }}
+        run: |
+          docker build -t my-image:latest .
+      
+      - name: Push Docker Image
+        if: ${{ github.event.inputs.action == 'docker-image' && github.event.inputs.docker_image_option == 'push' }}
+        run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          docker push my-image:latest
+
+  kustomize-deploy:
+    name: "Kustomize Deploy"
+    if: ${{ github.event.inputs.action == 'kustomize' || github.event.inputs.action == 'all' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install kustomize
+        run: |
+          curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/cc9dd34216d98be8efe341939094867b553b2cbc/hack/install_kustomize.sh" | bash
+
+      - name: Apply Kustomize manifests
+        run: |
+          kustomize build ./kustomize | kubectl apply -f -
+
+  deploy-all:
+    name: "Run All (Terraform, Docker, Kustomize)"
+    needs: [terraform-execute, docker-image-execute, kustomize-deploy]
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.action == 'all' }}
+    steps:
+      - name: Final Step for All
+        run: echo "All steps completed!"
