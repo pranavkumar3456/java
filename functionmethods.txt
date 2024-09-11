@@ -1,0 +1,27 @@
+Static Method:
+
+No need to create an instance of the class to call a 
+static method because static methods do not depend on the specific instance (i.e., the object's state).
+
+Non-Static Method:
+
+Belongs to an instance of class.
+They need to access to the instance state( i.e., instance variable or non-static variables)
+To call the non-static method you need to create an instance of class because the method might rely on the specific instance data.
+
+
+Why Use Static or Non-Static in Microservices?
+Static Methods are helpful when:
+
+You need reusable functionality that doesn’t depend on the service's state.
+You have utility functions like validation, logging, or common format conversions that multiple microservices may need.
+There’s no need to manage instance-level configuration or state.
+Non-Static Methods are necessary when:
+
+You need access to the service's instance-specific resources like database connections, external API configurations, or other dependencies.
+You are managing instance-specific states such as caching or session management.
+The method involves complex business logic or workflows dependent on the current service instance's state or configuration.
+Summary in Microservices:
+Static methods are typically used for utilities or functionality that doesn't rely on any instance data. These methods are shared across multiple microservices and can be easily called without needing to create an instance.
+
+Non-static methods are used when you need the method to interact with the state or configuration of a specific service instance, such as handling business logic, interacting with databases, external APIs, or managing instance-specific configurations.
