@@ -1,0 +1,63 @@
+1. Procedural Approach:
+Definition: The procedural approach organizes code into procedures or functions (methods in Java). It encourages breaking down a problem into smaller, reusable blocks of code that focus on specific tasks.
+Example: In your case, using a method like solve() to encapsulate the logic of finding the frequency of a number in an array.
+Benefits of Procedural Approach:
+Reusability:
+
+Methods can be reused throughout your code or even in different projects. For instance, once you define a solve() method, you can call it with different inputs without needing to rewrite the logic.
+Maintainability:
+
+Code is easier to maintain and update because each function or method handles a specific task. If you need to change the frequency calculation, you only need to modify the solve() method, not every place where the logic is applied.
+Modularity:
+
+Breaking down problems into functions improves modularity. Each function is independent and can be tested and debugged separately.
+Readability:
+
+Procedural code tends to be more readable because it clearly defines responsibilities and behavior. For example, solve() makes it clear that its purpose is to solve the problem of counting frequency.
+Abstraction:
+
+A procedural approach allows for abstraction of details. By calling a method like solve(), you can focus on the higher-level logic of your program, without worrying about how the method works internally.
+Separation of Concerns:
+
+You can separate input/output logic from business logic. For instance, the logic for interacting with the user (using Scanner) is distinct from the logic for calculating frequency.
+Testability:
+
+Methods are easier to test individually. You can write unit tests for solve() without needing to run the entire program, making your program more robust.
+
+
+2. Primitive Approach:
+Definition: In this context, a primitive approach means writing everything in one place without breaking the code into reusable methods. You directly handle logic and functionality at a low level, typically repeating code.
+Downsides of Primitive Approach:
+Redundancy:
+
+You may end up repeating the same logic in multiple places. This leads to increased effort in writing and maintaining code.
+Harder to Maintain:
+
+When your logic is scattered across the program, it becomes harder to track where changes need to be made if bugs are found or requirements change. Changing one part of the code could inadvertently break other parts.
+Poor Readability:
+
+Primitive code tends to become harder to read and understand, especially as the codebase grows. It's difficult to tell at a glance what each part of the code is doing, because there's no clear separation of responsibilities.
+Lack of Structure:
+
+Without functions or methods, it’s harder to follow the flow of the program. Everything is written in one place, making the code appear cluttered.
+Reduced Reusability:
+
+Code written in a primitive style is less reusable. If you need the same logic again, you might copy-paste code instead of calling a method, leading to duplication and increased chances of bugs.
+
+
+
+When to Use the Procedural Approach:
+
+When your codebase starts to grow, and you need to manage complexity.
+When you want to reuse logic across different parts of your program or in future projects.
+When you need to maintain, test, or modify code over time.
+When collaborating with others, procedural code is easier to understand and share.
+
+
+When a Primitive Approach Might Be Enough:
+
+
+For very small, simple scripts where writing functions might be unnecessary overhead.
+For quick one-off tasks or prototypes that won't grow in complexity.
+Conclusion:
+The procedural approach is generally better for code organization, reusability, and maintainability. It’s a key aspect of writing clean, scalable, and efficient code. While a primitive approach might be faster for very small, isolated tasks, it quickly becomes problematic as your program grows in size and complexity.
