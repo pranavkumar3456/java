@@ -1,0 +1,18 @@
+Size:
+
+- Array: Fixed size, determined at creation.
+- ArrayList: Dynamic size, can grow or shrink as needed.
+
+
+
+Type:
+
+- Array: Can hold primitive types and objects.
+- ArrayList: Can only hold objects (uses wrapper classes for primitives).
+
+
+
+Performance:
+
+- Array: Generally faster for simple operations due to direct memory access.
+- ArrayList: Slightly slower but offers more flexibility.
