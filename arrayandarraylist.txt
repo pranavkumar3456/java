@@ -16,3 +16,13 @@ Performance:
 
 - Array: Generally faster for simple operations due to direct memory access.
 - ArrayList: Slightly slower but offers more flexibility.
+
+Functionality:
+
+- Array: Basic, limited to indexing and iteration.
+- ArrayList: Rich set of methods for manipulation (add, remove, etc.).
+
+Type Safety:
+
+- Array: Checked at compile-time and runtime.
+- ArrayList: Only checked at runtime when using generics.
