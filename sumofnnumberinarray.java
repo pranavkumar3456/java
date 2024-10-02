@@ -1,6 +1,5 @@
 import java.util.*;
 import java.lang.*;
-#hello
 
 public class sumofnnumberinarray {
     static int sumArray(int arr[]){
